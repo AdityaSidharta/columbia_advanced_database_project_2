@@ -1,5 +1,5 @@
 #!/bin/bash
-data_dir="pretrained_spanbert"
+data_dir="pretrained_spanbert_new"
 model="tacred"
 echo Downloading pre-trained SpanBERT 
 wget -P $data_dir http://dl.fbaipublicfiles.com/fairseq/models/spanbert_$model.tar.gz
