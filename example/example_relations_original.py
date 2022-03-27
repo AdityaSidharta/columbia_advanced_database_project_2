@@ -12,7 +12,7 @@ doc = nlp(raw_text)
 
 # Load pre-trained SpanBERT model
 from spanbert import SpanBERT 
-spanbert = SpanBERT("./pretrained_spanbert")  
+spanbert = SpanBERT("../pretrained_spanbert")
 
 # Extract relations
 relations = extract_relations(doc, spanbert, entities_of_interest)

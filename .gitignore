@@ -128,4 +128,5 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-SpanBERT/pretrained_spanbert/pytorch_model.bin
+pretrained_spanbert/pytorch_model.bin
+.idea/

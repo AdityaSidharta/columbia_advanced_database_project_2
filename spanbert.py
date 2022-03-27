@@ -188,7 +188,7 @@ class SpanBERT:
         return list(zip(preds, proba))
 
 if __name__ == "__main__":
-    pretrained_dir = os.path.abspath("./pretrained_spanbert")
+    pretrained_dir = os.path.abspath("pretrained_spanbert")
     bert = SpanBERT(pretrained_dir=pretrained_dir)
     examples = [
             {"tokens": "Bill Gates is the founder of Microsoft".split(), "subj": ('Bill Gates', "PERSON", (0,1)), "obj": ('Microsoft', "ORGANIZATION", (6,6))},
