@@ -104,11 +104,16 @@ The main packages that we use in this project are:
 
 
 ## Step 3 Description
-    - Firstly, We need to decide what is the query that we are going to use. If its our first iteration, then we will select the query provided in argument. Else, we will choose query from our `result` that have not been previously explored
-    - We will then use urllib and beautiful soup to scrape the text content of all the links provided from our google query. Its possible that the site does not allow us to scrape the content, and thus we will skip if that is the case
-    - We will only choose 20000 first character, however we will discard non-complete words. Thus, we will most likely return less than 20000 Characters
-    - We will use spacy to detect entity pairs and spanbert to predict relations between entity pair. The relation provided in the argument is used to filter the right type of subject / object pair from the spacy result
-    - This proposed result will be collected, and new subject/object will be added to the overall result. If the pair has already existed, we update the confidence value if the new pair have higher confidence
+
+- Firstly, We need to decide what is the query that we are going to use. If its our first iteration, then we will select the query provided in argument. Else, we will choose query from our `result` that have not been previously explored
+
+- We will then use urllib and beautiful soup to scrape the text content of all the links provided from our google query. Its possible that the site does not allow us to scrape the content, and thus we will skip if that is the case
+
+- We will only choose 20000 first character, however we will discard non-complete words. Thus, we will most likely return less than 20000 Characters
+
+- We will use spacy to detect entity pairs and spanbert to predict relations between entity pair. The relation provided in the argument is used to filter the right type of subject / object pair from the spacy result
+
+- This proposed result will be collected, and new subject/object will be added to the overall result. If the pair has already existed, we update the confidence value if the new pair have higher confidence
 
 ## Search Engine JSON API Key and Engine ID
 
