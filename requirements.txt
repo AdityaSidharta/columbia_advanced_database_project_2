@@ -1,7 +1,6 @@
 backcall==0.1.0
 beautifulsoup4==4.10.0
 bitarray==1.2.0
-blis==0.7.6
 boto3==1.9.239
 botocore==1.12.239
 cachetools==4.2.4
@@ -14,7 +13,6 @@ cymem==2.0.6
 dataclasses==0.8
 decorator==4.4.1
 docutils==0.15.2
-en-core-web-lg @ https://github.com/explosion/spacy-models/releases/download/en_core_web_lg-3.2.0/en_core_web_lg-3.2.0-py3-none-any.whl
 entrypoints==0.4
 fire==0.4.0
 google-api-core==2.7.1
