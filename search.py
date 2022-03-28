@@ -20,10 +20,10 @@ def scrape(idx_site, proposed_site):
         sentence = soup.get_text(separator=" ")
         print("")
         print("")
-        print("URL ( {} / 10): {}".format(idx_site, proposed_site))
+        print("URL ( {} / 10): {}".format(idx_site + 1, proposed_site))
         print("Fetching text from url ...")
         return " ".join(sentence.split())
-    except ValueError:
+    except:
         return None
 
 
@@ -36,7 +36,7 @@ def trim(text_site):
     assert len(n_words) == len(adder)
     cumsum_full = cumsum_words + adder
     idx = np.max(np.where(cumsum_full < NUM_CHARACTER)) + 1
-    trim_site = " ".join(words_site[idx])
+    trim_site = " ".join(words_site[:idx])
     n_cur = len(trim_site)
     assert n_cur < NUM_CHARACTER
     if n_cur != n_prev:

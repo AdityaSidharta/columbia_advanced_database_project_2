@@ -106,22 +106,16 @@ def process(trim_site, nlp, spanbert, relation, threshold):
     doc_site = nlp(trim_site)
     print("Annotating the webpage using spacy...")
     proposed_entities = {}
-    n_sents = len(doc_site.sents)
+    n_sents = len(list(doc_site.sents))
     print(
         "Extracted {} sentences. Processing each sentence one by one to check for presence of right pair of named entity types; if so, will run the second pipeline ...".format(
             n_sents
         )
     )
+    candidate_pairs = []
     for idx_sent, sentence in enumerate(doc_site.sents):
         if idx_sent % 5 == 0:
             print("Processed {} / {} sentences".format(idx_sent, n_sents))
-        # print("\n\nProcessing entence: {}".format(sentence))
-        # print("Tokenized sentence: {}".format([token.text for token in sentence]))
-        # ents = get_entities(sentence)
-        # print("spaCy extracted entities: {}".format(ents))
-
-        # create entity pairs
-        candidate_pairs = []
         sentence_entity_pairs = create_entity_pairs(sentence, entities_of_interest)
         for ep in sentence_entity_pairs:
             token = ep[0]
@@ -129,38 +123,38 @@ def process(trim_site, nlp, spanbert, relation, threshold):
             object = ep[2]
             allowed_subjects = relation_entity_dict[relation][0]
             allowed_objects = relation_entity_dict[relation][1]
-            if (subject in allowed_subjects) and (object in allowed_objects):
-                candidate_pairs.append({"tokens": token, "subj": subject, "obj": object})
+            if (subject[1] in allowed_subjects) and (object[1] in allowed_objects):
+                candidate_pairs.append({"tokens": token, "subj": subject, "obj": object, 'idx_sent': idx_sent})
 
-        # print("Candidate entity pairs:")
-        # for p in candidate_pairs:
-        #     print("Subject: {}\tObject: {}".format(p["subj"][0:2], p["obj"][0:2]))
-        # print("Applying SpanBERT for each of the {} candidate pairs. This should take some time...".format(len(candidate_pairs)))
-
-        if len(candidate_pairs) == 0:
-            return proposed_entities
-
-        relation_preds = spanbert.predict(candidate_pairs)  # get predictions: list of (relation, confidence) pairs
-        for candidate_pair, relation_pred in list(zip(candidate_pairs, relation_preds)):
-            tokens = candidate_pair["tokens"]
-            subject = candidate_pair["subj"][0]
-            object = candidate_pair["obj"][0]
-            relation = relation_pred[0]
-            confidence = relation_pred[1]
-            if (relation == relation_dict[relation]) and (confidence >= threshold):
-                proposed_entities[(subject, object)] = confidence
-                print("")
-                print("=== Extracted Relation ===")
-                print("Input tokens: {}".format(tokens))
-                print("Output Confidence: {} ; Subject: {} ; Object: {} ;".format(confidence, subject, object))
-                print("Adding to set of extracted relations")
-                print("==========")
-                n_extracted = n_extracted + 1
-                useful_sentence_idx.append(idx_sent)
-        print(
-            "Extracted annotations for  {}  out of total  {}  sentences".format(len(set(useful_sentence_idx)), n_sents)
-        )
+    # print(candidate_pairs)
+    if len(candidate_pairs) == 0:
         return proposed_entities
+
+    relation_preds = spanbert.predict(candidate_pairs)  # get predictions: list of (relation, confidence) pairs
+    # print(candidate_pairs)
+    # print(relation_preds)
+
+    for candidate_pair, relation_pred in list(zip(candidate_pairs, relation_preds)):
+        tokens = candidate_pair["tokens"]
+        subject = candidate_pair["subj"][0]
+        object = candidate_pair["obj"][0]
+        idx_sent = candidate_pair['idx_sent']
+        pred_relation = relation_pred[0]
+        pred_confidence = relation_pred[1]
+        if (pred_relation == relation_dict[relation]) and (pred_confidence >= threshold):
+            proposed_entities[(subject, object)] = pred_confidence
+            print("")
+            print("=== Extracted Relation ===")
+            print("Input tokens: {}".format(tokens))
+            print("Output Confidence: {} ; Subject: {} ; Object: {} ;".format(pred_confidence, subject, object))
+            print("Adding to set of extracted relations")
+            print("==========")
+            n_extracted = n_extracted + 1
+            useful_sentence_idx.append(idx_sent)
+    print(
+        "Extracted annotations for  {}  out of total  {}  sentences".format(len(set(useful_sentence_idx)), n_sents)
+    )
+    return proposed_entities
 
 
 def add_entities(proposed_entities, result):

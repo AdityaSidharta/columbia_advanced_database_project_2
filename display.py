@@ -1,6 +1,7 @@
 import numpy as np
 import spacy
 
+import entities
 from entities import relation_dict
 
 
@@ -9,7 +10,7 @@ def display_parameters(api_key, engine_id, relation, threshold, query, k):
     print("Parameters:")
     print("Client key	= {}".format(api_key))
     print("Engine key	= {}".format(engine_id))
-    print("Relation	= {}".format(spacy.relation_dict[relation]))
+    print("Relation	= {}".format(entities.relation_dict[relation]))
     print("Threshold	= {}".format(threshold))
     print("Query		= {}".format(query))
     print("# of Tuples	= {}".format(k))

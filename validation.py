@@ -1,4 +1,4 @@
-import spacy
+import entities
 
 
 def validate_api_key(api_key):
@@ -10,7 +10,7 @@ def validate_engine_id(engine_id):
 
 
 def validate_relation(relation):
-    assert relation in spacy.relation_dict
+    assert relation in entities.relation_dict
 
 
 def validate_threshold(threshold):

@@ -12,7 +12,7 @@ def main(api_key, engine_id, relation, threshold, query, k):
     result = dict()
     seen_sites = set()
     previous_queries = set()
-    i = 0
+    i = 1
 
     validation.validate_api_key(api_key)
     validation.validate_engine_id(engine_id)
@@ -23,7 +23,7 @@ def main(api_key, engine_id, relation, threshold, query, k):
 
     display.display_parameters(api_key, engine_id, relation, threshold, query, k)
     nlp = spacy.load("en_core_web_lg")
-    spanbert = SpanBERT("../pretrained_spanbert")
+    spanbert = SpanBERT("pretrained_spanbert")
 
     while len(result) <= k:
         current_query = search.get_query(query, result, previous_queries)
@@ -37,12 +37,15 @@ def main(api_key, engine_id, relation, threshold, query, k):
                     continue
                 trim_site = search.trim(text_site)
                 proposed_entities = entities.process(trim_site, nlp, spanbert, relation, threshold)
-                # TODO: Must remove duplicates too
                 entities.add_entities(proposed_entities, result)
                 seen_sites.add(proposed_site)
                 previous_queries.add(current_query)
-        display.display_result(result)
+        display.display_result(result, relation)
+        if len(result) == 0:
+            return None
     display.display_final_iteration(i)
+
+    return result
 
 
 if __name__ == "__main__":
