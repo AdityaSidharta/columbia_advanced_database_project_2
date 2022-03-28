@@ -54,6 +54,7 @@ This program assumes that you have:
 
 Setting up and Activating Virtual Environment and Installing the Required packages
 ```
+pip install -U pip setuptools wheel
 python -m venv cs6111_proj2
 source cs6111_proj2/bin/activate
 pip install -r requirements.txt
@@ -61,27 +62,21 @@ pip install -r requirements.txt
 
 For the purpose of reproducibility, you need to setup an ipykernel that have the same environment that you have in your python program. In order to have the same environment in your jupyter notebook:
 ```
-python -m ipykernel install --user --name cs6111_proj1
+python -m ipykernel install --user --name adv_db2
 ```
 
 ### Executing the program
 The syntax for running the program is as follows:
 ```
-python -m main <google api key> <google engine id> <precision> <query>
+python -m main <google api key> <google engine id> <r> <t> <q> <k>
 ```
 
 Example
 ```
-python -m main AIzaSyDhhK6kuFjOnRw4LDTfpwYaH5teRS48xLA ad8d80c3f1b726f69 0.9 "per se"
-python -m main AIzaSyDhhK6kuFjOnRw4LDTfpwYaH5teRS48xLA ad8d80c3f1b726f69 0.9 "cases"
-python -m main AIzaSyDhhK6kuFjOnRw4LDTfpwYaH5teRS48xLA ad8d80c3f1b726f69 0.9 "brin"
-```
-
-```
-python -m venv cs6111_proj1
-source cs6111_proj1/bin/activate
-pip install -r cs6111_proj1/requirements.txt
-python -m main [google api key] [google engine id] [precision] "[query]"
+python -m main AIzaSyDhhK6kuFjOnRw4LDTfpwYaH5teRS48xLA ad8d80c3f1b726f69 1 0.7 "mark zuckerberg harvard" 17
+python -m main AIzaSyDhhK6kuFjOnRw4LDTfpwYaH5teRS48xLA ad8d80c3f1b726f69 2 0.7 "sundar pichai google" 35
+python -m main AIzaSyDhhK6kuFjOnRw4LDTfpwYaH5teRS48xLA ad8d80c3f1b726f69 3 0.7 "megan repinoe redding" 2
+python -m main AIzaSyDhhK6kuFjOnRw4LDTfpwYaH5teRS48xLA ad8d80c3f1b726f69 4 0.7 "bill gates microsoft" 10
 ```
 
 ## Internal Design of the project
