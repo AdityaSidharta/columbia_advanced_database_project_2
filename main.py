@@ -1,16 +1,17 @@
 import fire
 import spacy
 
-import validation
 import display
-import search
 import entities
+import search
+import validation
 from spanbert import SpanBERT
 
 
 def main(api_key, engine_id, relation, threshold, query, k):
-    result = []
+    result = dict()
     seen_sites = set()
+    previous_queries = set()
     i = 0
 
     validation.validate_api_key(api_key)
@@ -25,21 +26,21 @@ def main(api_key, engine_id, relation, threshold, query, k):
     spanbert = SpanBERT("../pretrained_spanbert")
 
     while len(result) <= k:
-        #TODO: Get best next query, stop otherwise.
-        search.get_query()
-        display.display_iteration(i, query)
-        proposed_sites = search.query(api_key, engine_id, query)
-        for proposed_site in proposed_sites:
+        current_query = search.get_query(query, result, previous_queries)
+        display.display_iteration(i, current_query)
+        proposed_sites = search.query(api_key, engine_id, current_query)
+        for idx_site, proposed_site in enumerate(proposed_sites):
             if proposed_site not in seen_sites:
-                text_site = search.scrape(proposed_site)
+                text_site = search.scrape(idx_site, proposed_site)
                 if text_site is None:
-                    # TODO: Alerting here
+                    display.error_parsing(proposed_site)
                     continue
                 trim_site = search.trim(text_site)
-                entities_site = entities.process(trim_site, nlp)
+                proposed_entities = entities.process(trim_site, nlp, spanbert, relation, threshold)
                 # TODO: Must remove duplicates too
-                entities.add_entities(entities_site, result)
+                entities.add_entities(proposed_entities, result)
                 seen_sites.add(proposed_site)
+                previous_queries.add(current_query)
         display.display_result(result)
     display.display_final_iteration(i)
 

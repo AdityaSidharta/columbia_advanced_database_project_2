@@ -5,13 +5,15 @@ entities_of_interest = ["ORGANIZATION", "PERSON", "LOCATION", "CITY", "STATE_OR_
 
 # Load spacy model
 import spacy
-nlp = spacy.load("en_core_web_lg")  
+
+nlp = spacy.load("en_core_web_lg")
 
 # Apply spacy model to raw text (to split to sentences, tokenize, extract entities etc.)
-doc = nlp(raw_text)  
+doc = nlp(raw_text)
 
 # Load pre-trained SpanBERT model
-from spanbert import SpanBERT 
+from spanbert import SpanBERT
+
 spanbert = SpanBERT("../pretrained_spanbert")
 
 # Extract relations

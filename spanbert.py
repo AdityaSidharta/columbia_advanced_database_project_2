@@ -6,21 +6,88 @@ Scripts adopted from https://github.com/facebookresearch/SpanBERT and edited by 
 
 import os
 import random
-import time
-import json
 
 import numpy as np
 import torch
+from scipy.special import softmax
 from torch.utils.data import DataLoader, TensorDataset
-#from transformers import AutoTokenizer, AutoModel, BertForSequenceClassification
+
+# from transformers import AutoTokenizer, AutoModel, BertForSequenceClassification
 from pytorch_pretrained_bert.modeling import BertForSequenceClassification
 from pytorch_pretrained_bert.tokenization import BertTokenizer
-from scipy.special import softmax
 
 CLS = "[CLS]"
 SEP = "[SEP]"
-label_list = ['no_relation', 'per:title', 'org:top_members/employees', 'per:employee_of', 'org:alternate_names', 'org:country_of_headquarters', 'per:countries_of_residence', 'per:age', 'org:city_of_headquarters', 'per:cities_of_residence', 'per:stateorprovinces_of_residence', 'per:origin', 'org:subsidiaries', 'org:parents', 'per:spouse', 'org:stateorprovince_of_headquarters', 'per:children', 'per:other_family', 'org:members', 'per:siblings', 'per:parents', 'per:schools_attended', 'per:date_of_death', 'org:founded_by', 'org:member_of', 'per:cause_of_death', 'org:website', 'org:political/religious_affiliation', 'per:alternate_names', 'org:founded', 'per:city_of_death', 'org:shareholders', 'org:number_of_employees/members', 'per:charges', 'per:city_of_birth', 'per:date_of_birth', 'per:religion', 'per:stateorprovince_of_death', 'per:stateorprovince_of_birth', 'per:country_of_birth', 'org:dissolved', 'per:country_of_death']
-special_tokens = {'SUBJ_START': '[unused1]', 'SUBJ_END': '[unused2]', 'OBJ_START': '[unused3]', 'OBJ_END': '[unused4]', 'SUBJ=PERSON': '[unused5]', 'OBJ=TITLE': '[unused6]', 'OBJ=PERSON': '[unused7]', 'OBJ=CITY': '[unused8]', 'SUBJ=ORGANIZATION': '[unused9]', 'OBJ=DATE': '[unused10]', 'OBJ=MISC': '[unused11]', 'OBJ=ORGANIZATION': '[unused12]', 'OBJ=NATIONALITY': '[unused13]', 'OBJ=NUMBER': '[unused14]', 'OBJ=RELIGION': '[unused15]', 'OBJ=URL': '[unused16]', 'OBJ=CAUSE_OF_DEATH': '[unused17]', 'OBJ=COUNTRY': '[unused18]', 'OBJ=DURATION': '[unused19]', 'OBJ=STATE_OR_PROVINCE': '[unused20]', 'OBJ=LOCATION': '[unused21]', 'OBJ=CRIMINAL_CHARGE': '[unused22]', 'OBJ=IDEOLOGY': '[unused23]'} 
+label_list = [
+    "no_relation",
+    "per:title",
+    "org:top_members/employees",
+    "per:employee_of",
+    "org:alternate_names",
+    "org:country_of_headquarters",
+    "per:countries_of_residence",
+    "per:age",
+    "org:city_of_headquarters",
+    "per:cities_of_residence",
+    "per:stateorprovinces_of_residence",
+    "per:origin",
+    "org:subsidiaries",
+    "org:parents",
+    "per:spouse",
+    "org:stateorprovince_of_headquarters",
+    "per:children",
+    "per:other_family",
+    "org:members",
+    "per:siblings",
+    "per:parents",
+    "per:schools_attended",
+    "per:date_of_death",
+    "org:founded_by",
+    "org:member_of",
+    "per:cause_of_death",
+    "org:website",
+    "org:political/religious_affiliation",
+    "per:alternate_names",
+    "org:founded",
+    "per:city_of_death",
+    "org:shareholders",
+    "org:number_of_employees/members",
+    "per:charges",
+    "per:city_of_birth",
+    "per:date_of_birth",
+    "per:religion",
+    "per:stateorprovince_of_death",
+    "per:stateorprovince_of_birth",
+    "per:country_of_birth",
+    "org:dissolved",
+    "per:country_of_death",
+]
+special_tokens = {
+    "SUBJ_START": "[unused1]",
+    "SUBJ_END": "[unused2]",
+    "OBJ_START": "[unused3]",
+    "OBJ_END": "[unused4]",
+    "SUBJ=PERSON": "[unused5]",
+    "OBJ=TITLE": "[unused6]",
+    "OBJ=PERSON": "[unused7]",
+    "OBJ=CITY": "[unused8]",
+    "SUBJ=ORGANIZATION": "[unused9]",
+    "OBJ=DATE": "[unused10]",
+    "OBJ=MISC": "[unused11]",
+    "OBJ=ORGANIZATION": "[unused12]",
+    "OBJ=NATIONALITY": "[unused13]",
+    "OBJ=NUMBER": "[unused14]",
+    "OBJ=RELIGION": "[unused15]",
+    "OBJ=URL": "[unused16]",
+    "OBJ=CAUSE_OF_DEATH": "[unused17]",
+    "OBJ=COUNTRY": "[unused18]",
+    "OBJ=DURATION": "[unused19]",
+    "OBJ=STATE_OR_PROVINCE": "[unused20]",
+    "OBJ=LOCATION": "[unused21]",
+    "OBJ=CRIMINAL_CHARGE": "[unused22]",
+    "OBJ=IDEOLOGY": "[unused23]",
+}
+
 
 class InputExample(object):
     """A single training/test example for span pair classification."""
@@ -49,20 +116,26 @@ def convert_examples_to_features(examples, max_seq_length, tokenizer, special_to
         """Creates examples for the training and dev sets."""
         examples = []
         for example in dataset:
-            sentence = example['tokens']
-            examples.append(InputExample(
-                sentence=example['tokens'],
-                ner1=example['subj'][1],
-                span1=example['subj'][2],
-                ner2=example['obj'][1],
-                span2=example['obj'][2]
-                ))
+            sentence = example["tokens"]
+            examples.append(
+                InputExample(
+                    sentence=example["tokens"],
+                    ner1=example["subj"][1],
+                    span1=example["subj"][2],
+                    ner2=example["obj"][1],
+                    span2=example["obj"][2],
+                )
+            )
         return examples
 
     def get_special_token(w):
         if w not in special_tokens:
-            raise(BaseException("ERROR: did not find special token {} in current dict: {}\n".format(w, special_tokens.keys())))
-            #special_tokens[w] = "[unused%d]" % (len(special_tokens) + 1)
+            raise (
+                BaseException(
+                    "ERROR: did not find special token {} in current dict: {}\n".format(w, special_tokens.keys())
+                )
+            )
+            # special_tokens[w] = "[unused%d]" % (len(special_tokens) + 1)
         return special_tokens[w]
 
     examples = create_examples(examples)
@@ -116,11 +189,7 @@ def convert_examples_to_features(examples, max_seq_length, tokenizer, special_to
         assert len(input_mask) == max_seq_length
         assert len(segment_ids) == max_seq_length
 
-        features.append(
-                InputFeatures(input_ids=input_ids,
-                              input_mask=input_mask,
-                              segment_ids=segment_ids
-                              ))
+        features.append(InputFeatures(input_ids=input_ids, input_mask=input_mask, segment_ids=segment_ids))
     #  print("Average #tokens: %.2f" % (num_tokens * 1.0 / len(examples)))
     #  print("%d (%.2f %%) examples can fit max_seq_length = %d" % (num_fit_examples,
     #      num_fit_examples * 100.0 / len(examples), max_seq_length))
@@ -139,8 +208,7 @@ def predict(model, device, eval_dataloader, verbose=True):
         if len(preds) == 0:
             preds.append(logits.detach().cpu().numpy())
         else:
-            preds[0] = np.append(
-                preds[0], logits.detach().cpu().numpy(), axis=0)
+            preds[0] = np.append(preds[0], logits.detach().cpu().numpy(), axis=0)
 
     pred_ids = np.argmax(preds[0], axis=1)
     pred_proba = np.max(softmax(preds[0], axis=1), axis=1)
@@ -159,8 +227,8 @@ class SpanBERT:
         self._set_seed()
         self.label2id = {label: i for i, label in enumerate(label_list)}
         self.id2label = {i: label for i, label in enumerate(label_list)}
-        self.num_labels = len(label_list)    
-        #self.tokenizer = AutoTokenizer.from_pretrained("SpanBERT/spanbert-base-cased", do_lower_case=False)
+        self.num_labels = len(label_list)
+        # self.tokenizer = AutoTokenizer.from_pretrained("SpanBERT/spanbert-base-cased", do_lower_case=False)
         self.tokenizer = BertTokenizer.from_pretrained(model, do_lower_case=False)
 
         print("Loading pre-trained spanBERT from {}".format(pretrained_dir))
@@ -187,15 +255,23 @@ class SpanBERT:
         preds = [self.id2label[pred] for pred in preds]
         return list(zip(preds, proba))
 
+
 if __name__ == "__main__":
     pretrained_dir = os.path.abspath("pretrained_spanbert")
     bert = SpanBERT(pretrained_dir=pretrained_dir)
     examples = [
-            {"tokens": "Bill Gates is the founder of Microsoft".split(), "subj": ('Bill Gates', "PERSON", (0,1)), "obj": ('Microsoft', "ORGANIZATION", (6,6))},
-            {"tokens": "Bill Gates is the founder of Microsoft".split(), "obj": ('Bill Gates', "PERSON", (0,1)), "subj": ('Microsoft', "ORGANIZATION", (6,6))}
-            ]
+        {
+            "tokens": "Bill Gates is the founder of Microsoft".split(),
+            "subj": ("Bill Gates", "PERSON", (0, 1)),
+            "obj": ("Microsoft", "ORGANIZATION", (6, 6)),
+        },
+        {
+            "tokens": "Bill Gates is the founder of Microsoft".split(),
+            "obj": ("Bill Gates", "PERSON", (0, 1)),
+            "subj": ("Microsoft", "ORGANIZATION", (6, 6)),
+        },
+    ]
     preds = bert.predict(examples)
     for example, pred in list(zip(examples, preds)):
         example["relation"] = pred
         print(example)
-
