@@ -1,4 +1,4 @@
-# CS6111 - Advanced Database System - Project 1
+# CS6111 - Advanced Database System - Project 2
 
 ## Team Members
 ```
@@ -8,38 +8,38 @@ UNI: aks2266
 
 ## List of Files
 ```
-├── .gitignore
-├── LICENSE
-├── README.md
-├── display.py
-├── entities.py
-├── example
-│ ├── example_relations.py
+├── .gitignore -> Not including model files into the github repository
+├── LICENSE -> MIT License for the project
+├── README.md -> Readme for the project
+├── display.py -> Functions that responsible to format printing to Standard Output
+├── entities.py -> Functions to perform entity prediction and entity relation prediction
+├── example -> Original example scripts provided by the Course Instructor
+│ ├── example_relations.py 
 │ ├── example_relations_original.py
 │ ├── spacy_help_functions.py
 │ └── spacy_help_functions_original.py
-├── main.py
-├── notebooks
+├── project2.py -> Main Script running the program
+├── notebooks -> Various jupyter notebooks used to debug the algorithm and explore the functions
 │ ├── beautiful_soup.ipynb
 │ ├── example_relations.ipynb
 │ ├── full_run.ipynb
 │ ├── google_search.ipynb
 │ └── spacy_help_functions.ipynb
-├── pretrained_spanbert
+├── pretrained_spanbert -> Folder used to save the spanbert model
 │ └── config.json
-├── pytorch_pretrained_bert
+├── pytorch_pretrained_bert -> Spanbert model
 │ ├── __init__.py
 │ ├── file_utils.py
 │ ├── modeling.py
 │ ├── optimization.py
 │ └── tokenization.py
-├── relations.txt
-├── requirements.txt
-├── scripts
+├── relations.txt -> List of relations supported by spanbert
+├── requirements.txt -> Packages used for the program
+├── scripts -> Bash Script used to download the pretrained spanbert model
 │ └── download_finetuned.sh
-├── search.py
-├── spanbert.py
-└── validation.py
+├── search.py -> Functions used to perform google search and scrape the queried sites
+├── spanbert.py -> Functions used to perform spanbert prediction
+└── validation.py -> Functions used to validate the argument provided by the Standard Input
 ```
 
 
@@ -54,9 +54,10 @@ This program assumes that you have:
 
 Setting up and Activating Virtual Environment and Installing the Required packages
 ```
-pip install -U pip setuptools wheel
 python -m venv cs6111_proj2
 source cs6111_proj2/bin/activate
+pip install -U pip setuptools wheel
+bash scripts/download_finetuned.sh
 pip install -r requirements.txt
 ```
 
@@ -73,72 +74,41 @@ python -m main <google api key> <google engine id> <r> <t> <q> <k>
 
 Example
 ```
-python -m main AIzaSyDhhK6kuFjOnRw4LDTfpwYaH5teRS48xLA ad8d80c3f1b726f69 1 0.7 "mark zuckerberg harvard" 17
-python -m main AIzaSyDhhK6kuFjOnRw4LDTfpwYaH5teRS48xLA ad8d80c3f1b726f69 2 0.7 "sundar pichai google" 35
-python -m main AIzaSyDhhK6kuFjOnRw4LDTfpwYaH5teRS48xLA ad8d80c3f1b726f69 3 0.7 "megan repinoe redding" 2
-python -m main AIzaSyDhhK6kuFjOnRw4LDTfpwYaH5teRS48xLA ad8d80c3f1b726f69 4 0.7 "bill gates microsoft" 10
+python3 project2.py AIzaSyDhhK6kuFjOnRw4LDTfpwYaH5teRS48xLA ad8d80c3f1b726f69 1 0.7 "mark zuckerberg harvard" 17
+python3 project2.py AIzaSyDhhK6kuFjOnRw4LDTfpwYaH5teRS48xLA ad8d80c3f1b726f69 2 0.7 "sundar pichai google" 35
+python3 project2.py AIzaSyDhhK6kuFjOnRw4LDTfpwYaH5teRS48xLA ad8d80c3f1b726f69 3 0.7 "megan repinoe redding" 2
+python3 project2.py AIzaSyDhhK6kuFjOnRw4LDTfpwYaH5teRS48xLA ad8d80c3f1b726f69 4 0.7 "bill gates microsoft" 10
 ```
 
 ## Internal Design of the project
 
 ### General Structure of the code
-As explained in the list of files above, we separate the functions that are required to run the whole program into different python script based on its functionality. `main.py` is used to assemble the different pieces together and act as the main program.
+As explained in the list of files above, we separate the functions that are required to run the whole program into different python script based on its functionality. `project2.py` is used to assemble the different pieces together and act as the main program.
 
-The reason of this code structure is modularity - we are able to change, update, or upgrade any of the modules in the program without changing other parts. For example, the `improve` function can be easily adapted to use different algorithm to generate the new proposed query, given that the current input signature is adequate for the new algorithm. Likewise, any changes in the `TF` component and `IDF` component in the function can be done seamlessly
+The reason of this code structure is modularity - we are able to change, update, or upgrade any of the modules in the program without changing other parts. For example, the `scrape` function can be easily adapted to use different method to take all the relevant text from a given webpages. 
 
-`params.py` is also used to hold all the possible parameters for the project. Currently, we allow changes on the parameters of the **Rocchio algorithm**, as well as on the preprocessing method
-
-Current Default values for `params.py`
-```Python3
-ALPHA = 1.0 # any positive float value
-BETA = 0.9 # any positive float value
-GAMMA = 0.05 # any positive float value, should be significantly smaller than ALPHA and BETA
-STEMMER = "lemmatize" # ['none', 'porter', 'snowball', 'arlstem', 'arlstem2', 'lemmatize']
-TOKENIZER = "word" # ['word', 'wordpunct', 'stanford', 'treebank']
-LANGUAGE = "english"
-TOP_K = 2
-```
+Various parameters related to the available entity pair to be identified by Spacy as well as the entity pair relation prediction by spanBert is available in the `entities.py`. It can easily be modified to accommodate more relation predictions. Number of trimmed Characters (Currently set to 20000) can also be changed at `search.py`
 
 ### External Library Used
 In order for us to freeze the environment, all the packages that we use have been included in the [requirements.txt](requirements.txt).
 
 The main packages that we use in this project are:
 
-- Numpy: Performing vectorized array calculations
-- fire: Command Line Interface Framework
-- nltk: Provide Stopwords, Stemming, and Lemmatization API
-- googleapiclient: Search Engine API
+- Spacy: Perform entity recognition
+- PyTorch: Build spanBERT model
+- Numpy: Vectorized Operation on Numerical Array
+- Fire: CLI Argument
+- Urllib: Opening Online sites
+- BeautifulSoup: HTML Extraction
+- GoogleAPIClient: Google Queries
 
 
-## Query Modification Method
-
-### Preprocessing and Document Generation
-Currently, we use the `title` and `snippet` that is generated from the Google Search Engine API to act as the `document`
-for each of the search result. While we are able to scrape the HTML file through the `link` and get the text content,
-we found that the snippet from Google Search API has already contained the important keyword for query proposals.
-
-In order to standardize and improve the query suggestion, we perform stop-words removal in order to prevent us from adding our
-query with unimportant stopwords, and we also perform lemmatization to standardize our vocabulary. We found that stemming
-is not appropriate for our use case as it truncate our word, which might change the meaning once we provide it as our query
-
-Nevertheless, we do realize that lemmatization might face the same problem as stemming, albeit less severe. It is a tradeoff
-between combining relevant words into single term versus the specificity of the words that we want to query
-
-### Selecting New Keywords
-We use TFIDF in order to create the word vector that is required for the Rocchio algortihm. In order to improve the vector query,
-the Term Frequency is adjusted to its document length and we use logarithm scale for the inverse document frequency.
-
-Then, we use Rocchio Algorithm[1] to update the query vector that we have. The query vector is initialized with 1 for each term that is contained in the query and 0 otherwise.
-Using the Relevant Vectors and Nonrelevant Vectors that we generate through the user feedback and TF-IDF algorithm, we are able to update the current query vector that we have
-
-In order to select keywords, we select the top 2 keywords in our query vector with the biggest score, apart from all the words that has been already contained in our current query.
-
-Literature:
-
-[1]Christopher D. Manning, Prabhakar Raghavan, Hinrich Schütze: An Introduction to Information Retrieval, page 163-167. Cambridge University Press, 2009.
-
-### Ordering New Keywords
-Mimicking the current algorithm that is contained in the reference solution, we are keeping the order of the current query, and appending the new keywords generated through the rocchio algorithm at the back of the query. However, the order of the two words that has been generated depends on the query vector value, where the one with higher score will be placed in front
+## Step 3 Description
+    - Firstly, We need to decide what is the query that we are going to use. If its our first iteration, then we will select the query provided in argument. Else, we will choose query from our `result` that have not been previously explored
+    - We will then use urllib and beautiful soup to scrape the text content of all the links provided from our google query. Its possible that the site does not allow us to scrape the content, and thus we will skip if that is the case
+    - We will only choose 20000 first character, however we will discard non-complete words. Thus, we will most likely return less than 20000 Characters
+    - We will use spacy to detect entity pairs and spanbert to predict relations between entity pair. The relation provided in the argument is used to filter the right type of subject / object pair from the spacy result
+    - This proposed result will be collected, and new subject/object will be added to the overall result. If the pair has already existed, we update the confidence value if the new pair have higher confidence
 
 ## Search Engine JSON API Key and Engine ID
 
@@ -148,7 +118,4 @@ Engine ID: ad8d80c3f1b726f69
 ```
 
 ## Query Transcript of Test Cases
-
-- [Per Se](per_se.txt)
-- [Brin](brin.txt)
-- [Cases](cases.txt)
+- [Run Logs](run_logs.txt)

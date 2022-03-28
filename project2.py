@@ -25,7 +25,7 @@ def main(api_key, engine_id, relation, threshold, query, k):
     nlp = spacy.load("en_core_web_lg")
     spanbert = SpanBERT("pretrained_spanbert")
 
-    while len(result) <= k:
+    while len(result) < k:
         current_query = search.get_query(query, result, previous_queries)
         if current_query is None:
             display.error_query()

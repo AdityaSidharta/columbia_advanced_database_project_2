@@ -18,6 +18,7 @@ def scrape(idx_site, proposed_site):
         html = urllib.request.urlopen(proposed_site).read()
         soup = BeautifulSoup(html, "html.parser")
         sentence = soup.get_text(separator=" ")
+        assert len(sentence.strip())
         print("")
         print("")
         print("URL ( {} / 10): {}".format(idx_site + 1, proposed_site))

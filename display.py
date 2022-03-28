@@ -1,5 +1,4 @@
 import numpy as np
-import spacy
 
 import entities
 from entities import relation_dict
