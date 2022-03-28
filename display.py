@@ -46,3 +46,7 @@ def display_result(result, relation):
         idxs = np.argsort(confidences)[::-1]
         for idx in idxs:
             print("Confidence: {} 		| Subject: {} 		| Object: {}".format(confidences[idx], subjects[idx], objects[idx]))
+
+
+def error_query():
+    print("There are no other query that can be used within the ISE algorithm!")

@@ -124,7 +124,7 @@ def process(trim_site, nlp, spanbert, relation, threshold):
             allowed_subjects = relation_entity_dict[relation][0]
             allowed_objects = relation_entity_dict[relation][1]
             if (subject[1] in allowed_subjects) and (object[1] in allowed_objects):
-                candidate_pairs.append({"tokens": token, "subj": subject, "obj": object, 'idx_sent': idx_sent})
+                candidate_pairs.append({"tokens": token, "subj": subject, "obj": object, "idx_sent": idx_sent})
 
     # print(candidate_pairs)
     if len(candidate_pairs) == 0:
@@ -138,7 +138,7 @@ def process(trim_site, nlp, spanbert, relation, threshold):
         tokens = candidate_pair["tokens"]
         subject = candidate_pair["subj"][0]
         object = candidate_pair["obj"][0]
-        idx_sent = candidate_pair['idx_sent']
+        idx_sent = candidate_pair["idx_sent"]
         pred_relation = relation_pred[0]
         pred_confidence = relation_pred[1]
         if (pred_relation == relation_dict[relation]) and (pred_confidence >= threshold):
@@ -151,9 +151,7 @@ def process(trim_site, nlp, spanbert, relation, threshold):
             print("==========")
             n_extracted = n_extracted + 1
             useful_sentence_idx.append(idx_sent)
-    print(
-        "Extracted annotations for  {}  out of total  {}  sentences".format(len(set(useful_sentence_idx)), n_sents)
-    )
+    print("Extracted annotations for  {}  out of total  {}  sentences".format(len(set(useful_sentence_idx)), n_sents))
     return proposed_entities
 
 

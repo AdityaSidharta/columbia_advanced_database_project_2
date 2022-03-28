@@ -27,6 +27,9 @@ def main(api_key, engine_id, relation, threshold, query, k):
 
     while len(result) <= k:
         current_query = search.get_query(query, result, previous_queries)
+        if current_query is None:
+            display.error_query()
+            return result
         display.display_iteration(i, current_query)
         proposed_sites = search.query(api_key, engine_id, current_query)
         for idx_site, proposed_site in enumerate(proposed_sites):

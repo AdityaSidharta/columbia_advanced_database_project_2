@@ -60,6 +60,6 @@ def get_query(query, result, previous_queries):
             proposed_query = subjects[idx] + " " + objects[idx]
             if proposed_query not in previous_queries:
                 return proposed_query
-        raise ValueError("No new queries available in the Iterative Set!")
+        return None
     else:
         return query
